@@ -1,9 +1,28 @@
+import { useState } from 'react'
 import './App.css'
-
+import ActionPanel from './components/ActionPanel'
+import OpenLayersMap from './components/OpenLayersMap'
 function App() {
+  const [drawing, setDrawing] = useState({});
+
+  const setDrawType = (type) => {
+    setDrawing({
+      type,
+      coords: []
+    });
+  }
+
+  const addCoords = (coords) => {
+    setDrawing({
+      ...drawing,
+      coords: [...drawing.coords, coords]
+    });
+  };
+
   return (
     <>
-      <h1 className="text-3xl font-bold underline text-blue-600">Hello world!</h1>
+      <OpenLayersMap drawing={drawing} setDrawType={setDrawType} addCoords={addCoords} />
+      <ActionPanel drawing={drawing} setDrawType={setDrawType} addCoords={addCoords} />
     </>
   )
 }
