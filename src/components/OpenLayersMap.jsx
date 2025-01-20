@@ -5,13 +5,12 @@ import { OSM } from 'ol/source';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import Draw from 'ol/interaction/Draw.js';
+import { toLonLat } from 'ol/proj';
 
 const OpenLayersMap = ({ drawing, setDrawType, addCoords }) => {
     const mapRef = useRef();
     const [map, setMap] = useState(null);
-
-    console.log("drawing", drawing);
-    console.log("map", map);
+    const [draw, setDraw] = useState(null);
 
     useEffect(() => {
         const instance = new Map({
@@ -32,52 +31,52 @@ const OpenLayersMap = ({ drawing, setDrawType, addCoords }) => {
         return () => instance.setTarget(null);
     }, []);
 
-    // useEffect(() => {
-    //     if (drawing && drawing.type) {
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            if (draw) {
+                map.removeInteraction(draw);
+                setDraw(null);
+                console.log("Draw interaction removed");
+            }
+        }
+    };
 
-    //         console.log(drawing.type);
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyPress);
+    }, [draw, map]);
 
-    //         const raster = new TileLayer({
-    //             source: new OSM(),
-    //         });
+    useEffect(() => {
+        if (drawing && drawing.type) {
+            console.log(drawing.type);
 
-    //         const source = new VectorSource({ wrapX: false });
+            const raster = new TileLayer({
+                source: new OSM(),
+            });
 
-    //         const vector = new VectorLayer({
-    //             source: source,
-    //         });
+            const source = new VectorSource({ wrapX: false });
 
-    //         // const map = new Map({
-    //         //     layers: [raster, vector],
-    //         //     target: 'map',
-    //         //     view: new View({
-    //         //         center: [-11000000, 4600000],
-    //         //         zoom: 4,
-    //         //     }),
-    //         // });
+            const vector = new VectorLayer({
+                source: source,
+            });
 
-    //         map.addLayer(raster);
-    //         map.addLayer(vector);
+            map.addLayer(raster);
+            map.addLayer(vector);
 
-    //         let draw = new Draw({
-    //             source: source,
-    //             type: drawing.type,
-    //         });
-    //         map.addInteraction(draw);
+            const newDraw = new Draw({
+                source: source,
+                type: drawing.type,
+            });
 
-    //         // let draw;
+            map.addInteraction(newDraw);
+            setDraw(newDraw);
 
-    //         // const addInteraction = () => {
-    //         //     draw = new Draw({
-    //         //         source: source,
-    //         //         type: drawing.type,
-    //         //     });
-    //         //     map.addInteraction(draw);
-    //         // };
-
-    //         // addInteraction();
-    //     }
-    // }, [drawing, addCoords]);
+            newDraw.on('drawstart', (event) => {
+                const coordinates = event.feature.getGeometry().getCoordinates();
+                const longLatCoordinates = toLonLat(coordinates[0]);
+                addCoords(longLatCoordinates);
+            });
+        }
+    }, [drawing, map, addCoords]);
 
     return (
         <div>
