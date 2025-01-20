@@ -56,14 +56,20 @@ const WPTable = ({ drawing }) => {
 
 
     return (
-        <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 300, }} aria-label="simple table">
+        <TableContainer
+            component={Paper}
+            sx={{
+                minWidth: 300,
+                maxHeight: 300, // Limit the height
+                overflowY: 'auto', // Enable vertical scrolling
+            }}
+        >
+            <Table stickyHeader sx={{ minWidth: 300 }} aria-label="simple table">
                 <TableHead>
                     <TableRow>
                         <TableCell>WP</TableCell>
                         <TableCell align="right">Coordinates</TableCell>
                         <TableCell align="right">Distance&nbsp;(m)</TableCell>
-
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -77,7 +83,6 @@ const WPTable = ({ drawing }) => {
                             </TableCell>
                             <TableCell align="right">{row.Coordinates}</TableCell>
                             <TableCell align="right">{row.Distance}</TableCell>
-
                         </TableRow>
                     ))}
                 </TableBody>
